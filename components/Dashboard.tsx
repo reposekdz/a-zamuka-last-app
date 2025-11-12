@@ -17,9 +17,10 @@ const mockRecentTransactions: Transaction[] = [
 const QuickActionButton: React.FC<{
   icon: React.ReactNode;
   label: string;
-}> = ({ icon, label }) => (
-  <button className="flex flex-col items-center justify-center space-y-2 text-center text-slate-700 hover:text-rw-blue transition-colors">
-    <div className="bg-slate-200 rounded-full p-4">
+  className?: string;
+}> = ({ icon, label, className = '' }) => (
+  <button className="flex flex-col items-center justify-center space-y-2 text-center text-slate-700 hover:text-rw-blue transition-colors group">
+    <div className={`rounded-full p-4 transition-colors ${className}`}>
       {icon}
     </div>
     <span className="text-sm font-semibold">{label}</span>
@@ -42,10 +43,10 @@ const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
       <div>
         <h2 className="text-xl font-bold text-slate-800 mb-4">Ibikorwa byihuse</h2>
         <div className="grid grid-cols-4 gap-4">
-            <QuickActionButton icon={<ArrowUpRightIcon className="w-6 h-6" />} label="Bika" />
-            <QuickActionButton icon={<ArrowDownLeftIcon className="w-6 h-6" />} label="Bikuza" />
-            <QuickActionButton icon={<BanknotesIcon className="w-6 h-6" />} label="Saba Inguzanyo" />
-            <QuickActionButton icon={<PaperAirplaneIcon className="w-6 h-6" />} label="Ohereza" />
+            <QuickActionButton icon={<ArrowUpRightIcon className="w-6 h-6 text-rw-green group-hover:text-rw-blue" />} label="Bika" className="bg-rw-green/20" />
+            <QuickActionButton icon={<ArrowDownLeftIcon className="w-6 h-6 text-red-500 group-hover:text-rw-blue" />} label="Bikuza" className="bg-red-500/10" />
+            <QuickActionButton icon={<BanknotesIcon className="w-6 h-6 text-rw-blue group-hover:text-rw-blue" />} label="Saba Inguzanyo" className="bg-rw-blue/10"/>
+            <QuickActionButton icon={<PaperAirplaneIcon className="w-6 h-6 text-sky-500 group-hover:text-rw-blue" />} label="Ohereza" className="bg-sky-500/10" />
         </div>
       </div>
 

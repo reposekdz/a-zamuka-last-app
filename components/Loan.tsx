@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Card from './Card';
-import { TrashIcon, PlusIcon, TrophyIcon } from './Icons';
+import { TrashIcon, PlusIcon, TrophyIcon, CheckCircleIcon, ExclamationTriangleIcon } from './Icons';
 
 // Interface for the loan comparison feature
 interface LoanOption {
@@ -14,10 +14,30 @@ interface LoanOption {
     totalPaid: number;
 }
 
+interface PaymentHistoryItem {
+    id: number;
+    description: string;
+    date: string;
+    amount: number;
+}
+
+const initialPaymentHistory: PaymentHistoryItem[] = [
+    { id: 1, description: 'Kwishyura ukwezi', date: '1 Nzeri, 2024', amount: -15000 },
+    { id: 2, description: 'Kwishyura ukwezi', date: '1 Kanama, 2024', amount: -10000 },
+    { id: 3, description: 'Wahawe inguzanyo', date: '15 Nyakanga, 2024', amount: 100000 },
+];
+
+
 const Loan: React.FC = () => {
-    const loanBalance = 75000;
+    const [loanBalance, setLoanBalance] = useState(75000);
+    const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryItem[]>(initialPaymentHistory);
     const nextPayment = 10000;
     const nextPaymentDate = '1 Ukwakira, 2024';
+
+    // State for making payments
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentError, setPaymentError] = useState('');
+    const [paymentSuccess, setPaymentSuccess] = useState('');
 
     // State for the loan application calculator
     const [loanAmount, setLoanAmount] = useState('');
@@ -41,6 +61,32 @@ const Loan: React.FC = () => {
         const month = months[date.getMonth()];
         const year = date.getFullYear();
         return `${day} ${month}, ${year}`;
+    };
+
+    const handleMakePayment = (amountToPayStr: string | number) => {
+        const amountToPay = Number(amountToPayStr);
+        setPaymentError('');
+        setPaymentSuccess('');
+        
+        if (isNaN(amountToPay) || amountToPay <= 0) {
+            setPaymentError('Shyiramo umubare usobanutse.');
+            return;
+        }
+        if (amountToPay > loanBalance) {
+            setPaymentError('Amafaranga ugiye kwishyura arenze umwenda usigaye.');
+            return;
+        }
+
+        setLoanBalance(prev => prev - amountToPay);
+        const newPayment: PaymentHistoryItem = {
+            id: Math.random(),
+            description: "Kwishyura Inguzanyo",
+            date: new Date().toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' }).replace(' an',','),
+            amount: -amountToPay
+        };
+        setPaymentHistory(prev => [newPayment, ...prev]);
+        setPaymentSuccess(`Wishyuye ${amountToPay.toLocaleString('fr-FR')} RWF neza.`);
+        setPaymentAmount('');
     };
 
     // Effect for the loan application calculator - Real-time calculation
@@ -143,11 +189,52 @@ const Loan: React.FC = () => {
         <Card className="text-center bg-rw-blue text-white">
           <p className="text-lg font-semibold opacity-80">Umwenda usigaye</p>
           <p className="text-4xl font-bold tracking-tight mt-1">{loanBalance.toLocaleString('fr-FR')} RWF</p>
-          <p className="text-sm mt-2 opacity-90">Ukwishyura gutaha: {nextPayment.toLocaleString('fr-FR')} RWF kuri {nextPaymentDate}</p>
+          {loanBalance > 0 && <p className="text-sm mt-2 opacity-90">Ukwishyura gutaha: {nextPayment.toLocaleString('fr-FR')} RWF kuri {nextPaymentDate}</p>}
         </Card>
         
+        {loanBalance > 0 && (
+             <Card>
+                <h3 className="text-lg font-bold text-slate-800 mb-4">Kwishyura Inguzanyo</h3>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="payment-amount" className="block text-sm font-medium text-slate-700">Umubare w'ubwishyu</label>
+                        <input
+                            type="number"
+                            id="payment-amount"
+                            placeholder="Andika umubare hano"
+                            value={paymentAmount}
+                            onChange={(e) => {
+                                setPaymentAmount(e.target.value);
+                                setPaymentError('');
+                                setPaymentSuccess('');
+                            }}
+                            className={`mt-1 block w-full px-3 py-2 bg-white border ${paymentError ? 'border-red-500' : 'border-slate-300'} rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-rw-blue focus:border-rw-blue sm:text-sm`}
+                        />
+                        {paymentError && <p className="mt-1 text-xs text-red-600 flex items-center space-x-1"><ExclamationTriangleIcon className="w-4 h-4" /><span>{paymentError}</span></p>}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <button onClick={() => handleMakePayment(nextPayment)} className="flex-1 text-center bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition-colors">
+                            Ishyura {nextPayment.toLocaleString('fr-FR')} RWF
+                        </button>
+                        <button onClick={() => handleMakePayment(loanBalance)} className="flex-1 text-center bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg hover:bg-slate-300 transition-colors">
+                            Ishyura Umwenda Wose
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => handleMakePayment(paymentAmount)}
+                        disabled={!paymentAmount || Number(paymentAmount) <= 0}
+                        className="w-full bg-rw-blue hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                    >
+                        Emeza Ubwishyu
+                    </button>
+                    {paymentSuccess && <p className="text-sm text-green-700 bg-green-100 p-3 rounded-lg flex items-center space-x-2"><CheckCircleIcon className="w-5 h-5" /><span>{paymentSuccess}</span></p>}
+                </div>
+            </Card>
+        )}
+
         <Card>
-          {/* Changed Title to better reflect functionality */}
           <h3 className="text-lg font-bold text-slate-800 mb-4">Kubara Inguzanyo</h3>
           <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div>
@@ -193,7 +280,6 @@ const Loan: React.FC = () => {
                     <option value="60">Imyaka 5 (Amezi 60)</option>
                 </select>
             </div>
-            {/* The form submission button now just triggers calculations, not a real submission for this demo */}
             <button
               type="submit"
               className="w-full bg-rw-blue hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300"
@@ -242,7 +328,6 @@ const Loan: React.FC = () => {
             </Card>
         )}
   
-        {/* --- Loan Comparison Section --- */}
         <Card>
             <h3 className="text-xl font-bold text-slate-800 mb-4">Gereranya Inguzanyo</h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 mb-4">
@@ -300,27 +385,17 @@ const Loan: React.FC = () => {
         <Card>
           <h3 className="text-lg font-bold text-slate-800 mb-4">Amateka y'ubwishyu</h3>
           <ul className="space-y-3">
-              <li className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <div>
-                    <p className="font-semibold text-slate-700">Kwishyura ukwezi</p>
-                    <p className="text-sm text-slate-500">1 Nzeri, 2024</p>
-                </div>
-                <p className="font-bold text-slate-700">-10,000 RWF</p>
-              </li>
-              <li className="flex justify-between items-center border-b border-slate-100 pb-2">
-                <div>
-                    <p className="font-semibold text-slate-700">Kwishyura ukwezi</p>
-                    <p className="text-sm text-slate-500">1 Kanama, 2024</p>
-                </div>
-                <p className="font-bold text-slate-700">-10,000 RWF</p>
-              </li>
-              <li className="flex justify-between items-center">
-                <div>
-                    <p className="font-semibold text-slate-700">Wahawe inguzanyo</p>
-                    <p className="text-sm text-slate-500">15 Nyakanga, 2024</p>
-                </div>
-                <p className="font-bold text-rw-green">+100,000 RWF</p>
-              </li>
+              {paymentHistory.map(tx => (
+                <li key={tx.id} className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-b-0">
+                    <div>
+                        <p className="font-semibold text-slate-700">{tx.description}</p>
+                        <p className="text-sm text-slate-500">{tx.date}</p>
+                    </div>
+                    <p className={`font-bold ${tx.amount > 0 ? 'text-rw-green' : 'text-slate-700'}`}>
+                        {tx.amount > 0 ? '+' : ''}{tx.amount.toLocaleString('fr-FR')} RWF
+                    </p>
+                </li>
+              ))}
           </ul>
         </Card>
       </div>

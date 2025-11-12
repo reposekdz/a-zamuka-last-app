@@ -5,9 +5,9 @@ interface LandingPageProps {
   onGetStarted: () => void;
 }
 
-const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string }> = ({ icon, title, description }) => (
+const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; description: string; iconBgClass: string; }> = ({ icon, title, description, iconBgClass }) => (
     <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-rw-blue/10 mb-4">
+        <div className={`flex items-center justify-center w-12 h-12 rounded-full ${iconBgClass} mb-4`}>
             {icon}
         </div>
         <h3 className="text-lg font-bold text-slate-800 mb-2">{title}</h3>
@@ -73,7 +73,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 </div>
                 <button 
                     onClick={onGetStarted}
-                    className="hidden sm:inline-block bg-white/20 text-white font-semibold px-5 py-2 rounded-lg hover:bg-white/30 backdrop-blur-sm transition-colors"
+                    className="hidden sm:inline-block bg-white/20 text-white font-semibold px-5 py-2 rounded-lg hover:bg-white/30 backdrop-blur-sm hover:shadow-lg hover:scale-105 transform transition-all duration-300"
                 >
                     Injira / Iyandikishe
                 </button>
@@ -151,16 +151,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="grid md:grid-cols-3 gap-8">
                     <FeatureCard 
                         icon={<PiggyBankIcon className="w-6 h-6 text-rw-green" />}
+                        iconBgClass="bg-rw-green/10"
                         title="Kuzigama"
                         description="Bika amafaranga yawe mu buryo bwizewe kandi ukurikirane uko ubwizigame bwawe bwiyongera umunsi ku wundi."
                     />
                     <FeatureCard 
                         icon={<LoanIcon className="w-6 h-6 text-rw-blue" />}
+                        iconBgClass="bg-rw-blue/10"
                         title="Inguzanyo"
                         description="Saba inguzanyo ku nyungu ntoya kandi ubone igisubizo mu gihe gito kugira ngo ushyire mu bikorwa imishinga yawe."
                     />
                      <FeatureCard 
                         icon={<UsersIcon className="w-6 h-6 text-rw-yellow" />}
+                        iconBgClass="bg-rw-yellow/10"
                         title="Ikimina"
                         description="Jya mu itsinda ry'ikimina cyangwa ushinge iryawe, maze mugere ku ntego zanyu mwishyize hamwe."
                     />
@@ -284,13 +287,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
 
         {/* Footer */}
-        <footer className="bg-slate-800 text-white py-12">
+        <footer className="bg-rw-blue text-white py-12">
             <div className="container mx-auto px-6 md:px-12 text-center">
                  <div className="flex items-center justify-center space-x-2 mb-4">
                     <SunIcon className="w-8 h-8 text-rw-yellow" />
                     <h1 className="text-2xl font-bold tracking-wider">Zamuka</h1>
                 </div>
-                <p className="text-slate-400">© {new Date().getFullYear()} Zamuka Microfinance. Uburenganzira bwose burasigasiriwe.</p>
+                <p className="text-slate-300">© {new Date().getFullYear()} Zamuka Microfinance. Uburenganzira bwose burasigasiriwe.</p>
             </div>
         </footer>
     </div>

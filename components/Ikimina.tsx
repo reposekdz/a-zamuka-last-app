@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IkiminaGroup, IkiminaMember } from '../types';
 import Card from './Card';
-import { UsersIcon, PlusIcon, ArrowLeftIcon, ChevronRightIcon, ShareIcon, GiftIcon, RefreshIcon, CheckIcon, ClockIcon, TrashIcon, PencilIcon, SearchIcon, ArrowDownTrayIcon, UserPlusIcon, CheckCircleIcon, ClipboardIcon, XMarkIcon, SpinnerIcon } from './Icons';
+import { UsersIcon, PlusIcon, ArrowLeftIcon, ChevronRightIcon, ShareIcon, GiftIcon, RefreshIcon, CheckIcon, ClockIcon, TrashIcon, PencilIcon, SearchIcon, ArrowDownTrayIcon, UserPlusIcon, CheckCircleIcon, ClipboardIcon, XMarkIcon, SpinnerIcon, ExclamationTriangleIcon } from './Icons';
 
 // Mock Data based on types.ts
 const mockIkiminaGroups: IkiminaGroup[] = [
@@ -53,6 +53,67 @@ const mockIkiminaGroups: IkiminaGroup[] = [
 
 type ModalState = 'idle' | 'confirming' | 'processing' | 'success';
 
+const AddFundsModal: React.FC<{
+    groupName: string;
+    onClose: () => void;
+    onConfirm: (amount: number, reason: string) => void;
+}> = ({ groupName, onClose, onConfirm }) => {
+    const [amount, setAmount] = useState('');
+    const [reason, setReason] = useState('');
+    const [error, setError] = useState('');
+
+    const handleConfirm = () => {
+        const numericAmount = Number(amount);
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            setError('Shyiramo umubare usobanutse.');
+            return;
+        }
+        if (!reason.trim()) {
+            setError('Andika impamvu.');
+            return;
+        }
+        onConfirm(numericAmount, reason.trim());
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4 animate-fade-in-up">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
+                <h3 className="text-lg font-bold text-slate-800 text-center">Ongeramo Amafaranga mu Isanduku</h3>
+                <p className="text-sm text-center text-slate-500 mb-4">Itsinda: {groupName}</p>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="add-funds-amount" className="block text-sm font-medium text-slate-700">Umubare (RWF)</label>
+                        <input
+                            type="number"
+                            id="add-funds-amount"
+                            value={amount}
+                            onChange={(e) => { setAmount(e.target.value); setError(''); }}
+                            placeholder="0 RWF"
+                            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-rw-blue focus:border-rw-blue sm:text-sm"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="add-funds-reason" className="block text-sm font-medium text-slate-700">Impamvu</label>
+                        <input
+                            type="text"
+                            id="add-funds-reason"
+                            value={reason}
+                            onChange={(e) => { setReason(e.target.value); setError(''); }}
+                            placeholder="Urugero: Gupfa ubusa bw'umusanzu"
+                            className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-rw-blue focus:border-rw-blue sm:text-sm"
+                        />
+                    </div>
+                    {error && <p className="text-xs text-red-600 flex items-center space-x-1"><ExclamationTriangleIcon className="w-4 h-4" /><span>{error}</span></p>}
+                </div>
+                <div className="mt-6 space-y-2">
+                    <button onClick={handleConfirm} className="w-full bg-rw-blue hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">Emeza</button>
+                    <button onClick={onClose} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">Subika</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const ContributionModal: React.FC<{
     groupName: string;
     amount: number;
@@ -90,6 +151,29 @@ const ContributionModal: React.FC<{
                         <button onClick={onClose} className="w-full bg-rw-green hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg mt-4">OK</button>
                     </>
                 )}
+            </div>
+        </div>
+    );
+};
+
+const RemoveMemberModal: React.FC<{
+    member: IkiminaMember;
+    groupName: string;
+    onClose: () => void;
+    onConfirm: () => void;
+}> = ({ member, groupName, onClose, onConfirm }) => {
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4 animate-fade-in-up">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
+                <ExclamationTriangleIcon className="w-16 h-16 text-red-500 mx-auto" />
+                <h3 className="text-lg font-bold text-slate-800 mt-4">Emeza Gusiba</h3>
+                <p className="text-slate-600 my-4">
+                    Urifuza gusiba <span className="font-bold">{member.name}</span> mu itsinda rya <span className="font-bold">{groupName}</span>? Iki gikorwa ntigisubirwaho.
+                </p>
+                <div className="space-y-2">
+                    <button onClick={onConfirm} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Yego, Musibe</button>
+                    <button onClick={onClose} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg">Oya, Subika</button>
+                </div>
             </div>
         </div>
     );
@@ -134,9 +218,11 @@ interface GroupDetailsProps {
     onMemberContributionChange: (memberId: number, newAmount: number) => void;
     onInviteMember: (username: string) => void;
     onMakeContribution: (memberId: number, amount: number) => void;
+    onRemoveMember: (memberId: number) => void;
+    onAddFundsToPot: (amount: number, reason: string) => void;
 }
 
-const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStatusChange, onMemberContributionChange, onInviteMember, onMakeContribution }) => {
+const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStatusChange, onMemberContributionChange, onInviteMember, onMakeContribution, onRemoveMember, onAddFundsToPot }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [editingStatusMemberId, setEditingStatusMemberId] = useState<number | null>(null);
     const [editingContributionMemberId, setEditingContributionMemberId] = useState<number | null>(null);
@@ -147,6 +233,13 @@ const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStat
     // Contribution Modal State
     const [showContributionModal, setShowContributionModal] = useState(false);
     const [contributionModalState, setContributionModalState] = useState<ModalState>('idle');
+
+    // Remove Member Modal State
+    const [showRemoveConfirmModal, setShowRemoveConfirmModal] = useState(false);
+    const [memberToRemove, setMemberToRemove] = useState<IkiminaMember | null>(null);
+
+    // Add Funds Modal State
+    const [showAddFundsModal, setShowAddFundsModal] = useState(false);
 
     const currentUserName = 'Umutoni Keza'; // Hardcoded for demo
     const currentUser = group.members.find(m => m.name === currentUserName);
@@ -200,6 +293,19 @@ const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStat
     const handleCloseContributionModal = () => {
         setShowContributionModal(false);
         setTimeout(() => setContributionModalState('idle'), 300);
+    };
+    
+    const handleConfirmRemove = () => {
+        if (memberToRemove) {
+            onRemoveMember(memberToRemove.id);
+            setShowRemoveConfirmModal(false);
+            setMemberToRemove(null);
+        }
+    };
+
+    const handleConfirmAddFunds = (amount: number, reason: string) => {
+        onAddFundsToPot(amount, reason);
+        setShowAddFundsModal(false);
     };
 
     const handleDownloadReport = () => {
@@ -342,17 +448,17 @@ const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStat
                     </div>
                 )}
 
-                 <div className="flex gap-2">
+                 <div className="grid grid-cols-2 gap-2">
                     <button onClick={handleDownloadReport} className="flex-1 bg-rw-green text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-green-700 transition-colors">
                         <ArrowDownTrayIcon className="w-5 h-5" />
                         <span>Raporo</span>
                     </button>
-                     <button className="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-slate-300 transition-colors">
-                        <PencilIcon className="w-5 h-5" />
-                    </button>
-                     <button className="bg-slate-200 text-slate-700 font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-slate-300 transition-colors">
-                        <TrashIcon className="w-5 h-5" />
-                    </button>
+                    {currentUserIsAdmin && (
+                         <button onClick={() => setShowAddFundsModal(true)} className="flex-1 bg-rw-blue text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-sky-700 transition-colors">
+                            <PlusIcon className="w-5 h-5" />
+                            <span>Ongeramo Amafaranga</span>
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -412,9 +518,19 @@ const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStat
                                         {member.isAdmin && <p className="text-xs text-rw-blue font-bold">Umuyobozi</p>}
                                     </div>
                                 </div>
-                                <div className="relative">
+                                <div className="relative flex items-center">
                                      {currentUserIsAdmin && !member.isAdmin && (
                                         <>
+                                            <button
+                                                onClick={() => {
+                                                    setMemberToRemove(member);
+                                                    setShowRemoveConfirmModal(true);
+                                                }}
+                                                className="p-2 rounded-full text-slate-500 hover:bg-slate-100 hover:text-red-500"
+                                                aria-label={`Siba ${member.name}`}
+                                            >
+                                                <TrashIcon className="w-4 h-4" />
+                                            </button>
                                             <button
                                                 onClick={() => setEditingStatusMemberId(editingStatusMemberId === member.id ? null : member.id)}
                                                 className="p-2 rounded-full text-slate-500 hover:bg-slate-100 hover:text-rw-blue"
@@ -471,6 +587,26 @@ const GroupDetails: React.FC<GroupDetailsProps> = ({ group, onBack, onMemberStat
                     modalState={contributionModalState}
                     onClose={handleCloseContributionModal}
                     onConfirm={handleConfirmContribution}
+                />
+            )}
+
+            {showRemoveConfirmModal && memberToRemove && (
+                <RemoveMemberModal
+                    member={memberToRemove}
+                    groupName={group.name}
+                    onClose={() => {
+                        setShowRemoveConfirmModal(false);
+                        setMemberToRemove(null);
+                    }}
+                    onConfirm={handleConfirmRemove}
+                />
+            )}
+
+             {showAddFundsModal && (
+                <AddFundsModal
+                    groupName={group.name}
+                    onClose={() => setShowAddFundsModal(false)}
+                    onConfirm={handleConfirmAddFunds}
                 />
             )}
         </div>
@@ -657,6 +793,44 @@ const Ikimina: React.FC = () => {
         );
     };
 
+    const handleRemoveMember = (memberId: number) => {
+        if (!selectedGroupId) return;
+
+        setGroups(currentGroups =>
+            currentGroups.map(group => {
+                if (group.id === selectedGroupId) {
+                    const updatedMembers = group.members.filter(member => member.id !== memberId);
+                    return { ...group, members: updatedMembers };
+                }
+                return group;
+            })
+        );
+    };
+
+    const handleAddFundsToPot = (amount: number, reason: string) => {
+        if (!selectedGroupId) return;
+
+        setGroups(currentGroups =>
+            currentGroups.map(group => {
+                if (group.id === selectedGroupId) {
+                    const newTransaction = {
+                        id: Math.random(),
+                        type: 'contribution' as const,
+                        memberName: `Umuyobozi (${reason})`,
+                        amount,
+                        date: new Date().toLocaleDateString('fr-CA', { year: 'numeric', month: 'long', day: 'numeric' }).replace(' an',',')
+                    };
+                    return {
+                        ...group,
+                        totalPot: group.totalPot + amount,
+                        transactions: [newTransaction, ...(group.transactions ?? [])]
+                    };
+                }
+                return group;
+            })
+        );
+    };
+
     const selectedGroup = selectedGroupId ? groups.find(g => g.id === selectedGroupId) : null;
 
     if (selectedGroup) {
@@ -667,6 +841,8 @@ const Ikimina: React.FC = () => {
                     onMemberContributionChange={handleMemberContributionChange}
                     onInviteMember={handleInviteMember}
                     onMakeContribution={handleMakeContribution}
+                    onRemoveMember={handleRemoveMember}
+                    onAddFundsToPot={handleAddFundsToPot}
                 />;
     }
 
@@ -690,80 +866,90 @@ const Ikimina: React.FC = () => {
                 const progressPercentage = activeMembers.length > 0 ? (paidMembersCount / activeMembers.length) * 100 : 0;
 
                 return (
-                    <Card key={group.id} onClick={() => setSelectedGroupId(group.id)}>
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1 flex items-start space-x-4">
-                                <div className="bg-rw-yellow/20 p-3 rounded-full mt-1"><UsersIcon className="w-8 h-8 text-rw-yellow"/></div>
-                                <div>
-                                    <h3 className="font-bold text-slate-800 text-lg">{group.name}</h3>
-                                    <p className="text-slate-500 font-medium">{group.totalPot.toLocaleString('fr-FR')} RWF mu isanduku</p>
-                                    <div className="flex -space-x-2 mt-2">
-                                        {group.members.slice(0, 4).map(member => (
-                                            <img key={member.id} src={member.avatar} alt={member.name} className="w-6 h-6 rounded-full border-2 border-white object-cover" />
-                                        ))}
-                                        {group.members.length > 4 && (
-                                            <div className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-xs font-bold text-slate-600">
-                                                +{group.members.length - 4}
-                                            </div>
-                                        )}
+                    <Card key={group.id} onClick={() => setSelectedGroupId(group.id)} className="relative overflow-hidden group">
+                        {/* Top-left Corner Decoration */}
+                        <div className="absolute -top-8 -left-8 w-16 h-16 bg-rw-blue opacity-20 transform rotate-45 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div className="absolute -top-4 -left-4 w-8 h-8 bg-rw-yellow opacity-20 transform rotate-45 group-hover:opacity-30 transition-opacity duration-300"></div>
+
+                        {/* Bottom-right Corner Decoration */}
+                        <div className="absolute -bottom-8 -right-8 w-16 h-16 bg-rw-green opacity-20 transform rotate-45 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-rw-yellow opacity-20 transform rotate-45 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        
+                        <div className="relative">
+                            <div className="flex items-start justify-between">
+                                <div className="flex-1 flex items-start space-x-4">
+                                    <div className="bg-rw-yellow/20 p-3 rounded-full mt-1"><UsersIcon className="w-8 h-8 text-rw-yellow"/></div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-800 text-lg">{group.name}</h3>
+                                        <p className="text-slate-500 font-medium">{group.totalPot.toLocaleString('fr-FR')} RWF mu isanduku</p>
+                                        <div className="flex -space-x-2 mt-2">
+                                            {group.members.slice(0, 4).map(member => (
+                                                <img key={member.id} src={member.avatar} alt={member.name} className="w-6 h-6 rounded-full border-2 border-white object-cover" />
+                                            ))}
+                                            {group.members.length > 4 && (
+                                                <div className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-xs font-bold text-slate-600">
+                                                    +{group.members.length - 4}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
+                                <ChevronRightIcon className="w-6 h-6 text-slate-400 flex-shrink-0" />
                             </div>
-                             <ChevronRightIcon className="w-6 h-6 text-slate-400 flex-shrink-0" />
-                        </div>
-                        
-                        <div className="mt-4">
-                            <div className="flex justify-between items-center mb-1 text-sm">
-                                <span className="font-semibold text-slate-600">Iterambere ry'Umusanzu</span>
-                                <div className="flex items-center space-x-2 text-xs">
-                                    <span className="font-bold text-rw-green flex items-center">
-                                        <CheckIcon className="w-3 h-3 mr-1"/>
-                                        {paidMembersCount} bishyuye
-                                    </span>
-                                    <span className="font-semibold text-orange-500 flex items-center">
-                                        <ClockIcon className="w-3 h-3 mr-1"/>
-                                        {unpaidMembersCount} ntibishyura
-                                    </span>
+                            
+                            <div className="mt-4">
+                                <div className="flex justify-between items-center mb-1 text-sm">
+                                    <span className="font-semibold text-slate-600">Iterambere ry'Umusanzu</span>
+                                    <div className="flex items-center space-x-2 text-xs">
+                                        <span className="font-bold text-rw-green flex items-center">
+                                            <CheckIcon className="w-3 h-3 mr-1"/>
+                                            {paidMembersCount} bishyuye
+                                        </span>
+                                        <span className="font-semibold text-orange-500 flex items-center">
+                                            <ClockIcon className="w-3 h-3 mr-1"/>
+                                            {unpaidMembersCount} ntibishyura
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="w-full bg-slate-200 rounded-full h-2">
+                                    <div 
+                                        className="bg-rw-green h-2 rounded-full transition-all duration-500" 
+                                        style={{ width: `${progressPercentage}%` }}
+                                        role="progressbar"
+                                        aria-valuenow={progressPercentage}
+                                        aria-valuemin={0}
+                                        aria-valuemax={100}
+                                        aria-label="Iterambere ry'umusanzu"
+                                    ></div>
                                 </div>
                             </div>
-                            <div className="w-full bg-slate-200 rounded-full h-2">
-                                <div 
-                                    className="bg-rw-green h-2 rounded-full transition-all duration-500" 
-                                    style={{ width: `${progressPercentage}%` }}
-                                    role="progressbar"
-                                    aria-valuenow={progressPercentage}
-                                    aria-valuemin={0}
-                                    aria-valuemax={100}
-                                    aria-label="Iterambere ry'umusanzu"
-                                ></div>
-                            </div>
-                        </div>
 
-                        <div className="mt-3 flex items-center space-x-2">
-                            {currentUserIsAdmin && hasPendingInvites && (
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        alert('Ubutumire bwongeye koherezwa!');
-                                    }}
-                                    className="inline-flex items-center space-x-1.5 bg-rw-blue/10 text-rw-blue text-xs font-semibold px-2 py-1 rounded-md hover:bg-rw-blue/20 transition-colors"
-                                >
-                                    <RefreshIcon className="w-4 h-4" />
-                                    <span>Ongeraho Ubutumire</span>
-                                </button>
-                            )}
-                            {currentUserIsAdmin && (
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSharingGroup(group);
-                                    }}
-                                    className="inline-flex items-center space-x-1.5 bg-rw-blue/10 text-rw-blue text-xs font-semibold px-2 py-1 rounded-md hover:bg-rw-blue/20 transition-colors"
-                                >
-                                    <ShareIcon className="w-4 h-4" />
-                                    <span>Saranganya</span>
-                                </button>
-                            )}
+                            <div className="mt-3 flex items-center space-x-2">
+                                {currentUserIsAdmin && hasPendingInvites && (
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            alert('Ubutumire bwongeye koherezwa!');
+                                        }}
+                                        className="inline-flex items-center space-x-1.5 bg-rw-blue/10 text-rw-blue text-xs font-semibold px-2 py-1 rounded-md hover:bg-rw-blue/20 transition-colors"
+                                    >
+                                        <RefreshIcon className="w-4 h-4" />
+                                        <span>Ongeraho Ubutumire</span>
+                                    </button>
+                                )}
+                                {currentUserIsAdmin && (
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSharingGroup(group);
+                                        }}
+                                        className="inline-flex items-center space-x-1.5 bg-rw-blue/10 text-rw-blue text-xs font-semibold px-2 py-1 rounded-md hover:bg-rw-blue/20 transition-colors"
+                                    >
+                                        <ShareIcon className="w-4 h-4" />
+                                        <span>Saranganya</span>
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </Card>
                 )

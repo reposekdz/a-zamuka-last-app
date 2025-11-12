@@ -1,7 +1,9 @@
 import React from 'react';
 
+// FIX: Add optional 'title' prop to support tooltips on icons.
 interface IconProps {
   className?: string;
+  title?: string;
 }
 
 export const SunIcon: React.FC<IconProps> = ({ className }) => (
@@ -168,8 +170,10 @@ export const UserIcon: React.FC<IconProps> = ({ className }) => (
     </svg>
 );
 
-export const LockClosedIcon: React.FC<IconProps> = ({ className }) => (
+// FIX: Implement the `title` prop to fix an invalid property error and provide a tooltip.
+export const LockClosedIcon: React.FC<IconProps> = ({ className, title }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        {title && <title>{title}</title>}
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
     </svg>
 );

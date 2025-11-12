@@ -1,16 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import Card from '../Card';
-import { UserIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, GoogleIcon, FacebookIcon, SpinnerIcon } from '../Icons';
+import { UserIcon, LockClosedIcon, EyeIcon, EyeSlashIcon, GoogleIcon, FacebookIcon, SpinnerIcon, MapPinIcon } from '../Icons';
 
 interface LoginProps {
   onToggleForm: () => void;
   onLoginSuccess: () => void;
 }
 
+const locationData: { [province: string]: { [district: string]: string[] } } = {
+    "Umujyi wa Kigali": {
+        "Gasabo": ["Remera", "Kacyiru", "Kimihurura", "Gisozi"],
+        "Kicukiro": ["Gatenga", "Kicukiro", "Kanombe", "Gikondo"],
+        "Nyarugenge": ["Nyamirambo", "Kiyovu", "Rwezamenyo", "Nyakabanda"],
+    },
+    "Intara y'Iburasirazuba": {
+        "Nyagatare": ["Nyagatare", "Karangazi", "Rwimiyaga"],
+        "Gatsibo": ["Kiramuruzi", "Gatsibo", "Kabarore"],
+        "Kayonza": ["Mukarange", "Ndego", "Rwamagana"],
+        "Rwamagana": ["Kigabiro", "Musha", "Fumbwe"],
+    },
+    "Intara y'Amajyaruguru": {
+        "Musanze": ["Muhoza", "Cyuve", "Kinigi"],
+        "Gicumbi": ["Byumba", "Rushaki", "Miyove"],
+        "Rulindo": ["Shyorongi", "Base", "Masoro"],
+    },
+    "Intara y'Iburengerazuba": {
+        "Rubavu": ["Gisenyi", "Rugero", "Nyakiriba"],
+        "Rusizi": ["Kamembe", "Gihundwe", "Nkombo"],
+        "Karongi": ["Bwishyura", "Gishyita", "Rubengera"],
+    },
+    "Intara y'Amajyepfo": {
+        "Huye": ["Ngoma", "Tumba", "Maraba"],
+        "Nyanza": ["Busasamana", "Kibirizi", "Muyira"],
+        "Gisagara": ["Ndora", "Musha", "Kansi"],
+    }
+};
+
 const Login: React.FC<LoginProps> = ({ onToggleForm, onLoginSuccess }) => {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+    
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [districts, setDistricts] = useState<string[]>([]);
+    const [sectors, setSectors] = useState<string[]>([]);
+
+    const handleProvinceChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const province = e.target.value;
+        setSelectedProvince(province);
+        setSelectedDistrict('');
+        setDistricts(province ? Object.keys(locationData[province]) : []);
+        setSectors([]);
+    };
+
+    const handleDistrictChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const district = e.target.value;
+        setSelectedDistrict(district);
+        setSectors(selectedProvince && district ? locationData[selectedProvince][district] : []);
+    };
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -105,6 +154,41 @@ const Login: React.FC<LoginProps> = ({ onToggleForm, onLoginSuccess }) => {
               {passwordVisible ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
             </button>
           </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label htmlFor="province" className="block text-sm font-medium text-slate-700 mb-1">Intara</label>
+                <div className="relative">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <MapPinIcon className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <select id="province" value={selectedProvince} onChange={handleProvinceChange} required className="block w-full rounded-md border-slate-300 pl-10 shadow-sm focus:border-rw-blue focus:ring-rw-blue sm:text-sm py-2">
+                        <option value="">Hitamo Intara</option>
+                        {Object.keys(locationData).map(province => (
+                            <option key={province} value={province}>{province}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+             <div>
+                <label htmlFor="district" className="block text-sm font-medium text-slate-700 mb-1">Akarere</label>
+                <select id="district" value={selectedDistrict} onChange={handleDistrictChange} disabled={!selectedProvince} required className="block w-full rounded-md border-slate-300 shadow-sm focus:border-rw-blue focus:ring-rw-blue sm:text-sm py-2 disabled:bg-slate-100">
+                    <option value="">Hitamo Akarere</option>
+                    {districts.map(district => (
+                        <option key={district} value={district}>{district}</option>
+                    ))}
+                </select>
+            </div>
+        </div>
+         <div>
+            <label htmlFor="sector" className="block text-sm font-medium text-slate-700 mb-1">Umurenge</label>
+            <select id="sector" disabled={!selectedDistrict} required className="block w-full rounded-md border-slate-300 shadow-sm focus:border-rw-blue focus:ring-rw-blue sm:text-sm py-2 disabled:bg-slate-100">
+                <option value="">Hitamo Umurenge</option>
+                {sectors.map(sector => (
+                    <option key={sector} value={sector}>{sector}</option>
+                ))}
+            </select>
         </div>
 
         <div className="flex items-center justify-between text-sm">
