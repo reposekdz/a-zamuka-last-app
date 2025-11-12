@@ -18,12 +18,11 @@ const QuickActionButton: React.FC<{
   icon: React.ReactNode;
   label: string;
   className?: string;
-}> = ({ icon, label, className = '' }) => (
-  <button className="flex flex-col items-center justify-center space-y-2 text-center text-slate-700 hover:text-rw-blue transition-colors group">
-    <div className={`rounded-full p-4 transition-colors ${className}`}>
-      {icon}
-    </div>
-    <span className="text-sm font-semibold">{label}</span>
+  onClick?: () => void;
+}> = ({ icon, label, className = '', onClick }) => (
+  <button onClick={onClick} className={`p-4 rounded-xl flex flex-col items-center justify-center space-y-2 text-center text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${className}`}>
+    {icon}
+    <span className="text-sm">{label}</span>
   </button>
 );
 
@@ -31,29 +30,33 @@ const QuickActionButton: React.FC<{
 const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
   const userName = "Umutoni";
   const totalBalance = 225000;
+  const totalLoan = 100000;
+  const loanPaid = 25000;
+  const loanProgress = (loanPaid / totalLoan) * 100;
+
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-br from-rw-blue to-sky-600 text-white shadow-lg">
+      <Card className="bg-gradient-to-br from-rw-blue via-rw-green to-rw-yellow text-white shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
         <p className="text-lg font-light">Murakaza neza, {userName}</p>
         <p className="text-sm font-light opacity-80 mt-2">Amafaranga yawe yose</p>
-        <p className="text-4xl font-bold tracking-tight mt-1">{totalBalance.toLocaleString('fr-FR')} RWF</p>
+        <p className="text-4xl lg:text-5xl font-extrabold tracking-tight mt-1">{totalBalance.toLocaleString('fr-FR')} RWF</p>
       </Card>
       
       <div>
-        <h2 className="text-xl font-bold text-slate-800 mb-4">Ibikorwa byihuse</h2>
-        <div className="grid grid-cols-4 gap-4">
-            <QuickActionButton icon={<ArrowUpRightIcon className="w-6 h-6 text-rw-green group-hover:text-rw-blue" />} label="Bika" className="bg-rw-green/20" />
-            <QuickActionButton icon={<ArrowDownLeftIcon className="w-6 h-6 text-red-500 group-hover:text-rw-blue" />} label="Bikuza" className="bg-red-500/10" />
-            <QuickActionButton icon={<BanknotesIcon className="w-6 h-6 text-rw-blue group-hover:text-rw-blue" />} label="Saba Inguzanyo" className="bg-rw-blue/10"/>
-            <QuickActionButton icon={<PaperAirplaneIcon className="w-6 h-6 text-sky-500 group-hover:text-rw-blue" />} label="Ohereza" className="bg-sky-500/10" />
+        <h2 className="text-xl font-bold text-slate-800 mb-4 px-2">Ibikorwa byihuse</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <QuickActionButton icon={<ArrowUpRightIcon className="w-7 h-7" />} label="Bika" className="bg-rw-green" />
+            <QuickActionButton icon={<BanknotesIcon className="w-7 h-7" />} label="Saba Inguzanyo" className="bg-rw-blue" />
+            <QuickActionButton icon={<PaperAirplaneIcon className="w-7 h-7" />} label="Ohereza" className="bg-rw-yellow text-slate-800" />
+            <QuickActionButton icon={<ArrowDownLeftIcon className="w-7 h-7" />} label="Bikuza" className="bg-slate-700" />
         </div>
       </div>
 
       <div className="space-y-4">
         <Card onClick={() => setActivePage(Page.Saving)} className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-                <div className="bg-rw-green/20 p-3 rounded-full"><PiggyBankIcon className="w-6 h-6 text-rw-green"/></div>
+                <div className="bg-rw-green/10 p-3 rounded-full"><PiggyBankIcon className="w-6 h-6 text-rw-green"/></div>
                 <div>
                     <h3 className="font-bold text-slate-800">Ubwizigame</h3>
                     <p className="text-slate-500 font-medium">150,000 RWF</p>
@@ -61,15 +64,24 @@ const Dashboard: React.FC<DashboardProps> = ({ setActivePage }) => {
             </div>
             <ChevronRightIcon className="w-5 h-5 text-slate-400" />
         </Card>
-        <Card onClick={() => setActivePage(Page.Loan)} className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-                <div className="bg-rw-blue/20 p-3 rounded-full"><LoanIcon className="w-6 h-6 text-rw-blue"/></div>
-                <div>
-                    <h3 className="font-bold text-slate-800">Inguzanyo</h3>
-                    <p className="text-slate-500 font-medium">75,000 RWF Asigaye</p>
+        <Card onClick={() => setActivePage(Page.Loan)} className="flex flex-col">
+            <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-4">
+                    <div className="bg-rw-blue/10 p-3 rounded-full"><LoanIcon className="w-6 h-6 text-rw-blue"/></div>
+                    <div>
+                        <h3 className="font-bold text-slate-800">Inguzanyo</h3>
+                        <p className="text-slate-500 font-medium">75,000 RWF Asigaye</p>
+                    </div>
                 </div>
+                <ChevronRightIcon className="w-5 h-5 text-slate-400" />
             </div>
-            <ChevronRightIcon className="w-5 h-5 text-slate-400" />
+             <div className="mt-4">
+                <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>Yishyuwe</span>
+                    <span>{loanProgress.toFixed(0)}%</span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-1.5"><div className="bg-rw-blue h-1.5 rounded-full" style={{width: `${loanProgress}%`}}></div></div>
+            </div>
         </Card>
         <Card onClick={() => setActivePage(Page.Ikimina)} className="flex items-center justify-between">
             <div className="flex items-center space-x-4">

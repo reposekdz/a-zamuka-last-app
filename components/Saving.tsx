@@ -177,6 +177,8 @@ const Saving: React.FC = () => {
   const [scheduleAmount, setScheduleAmount] = useState('');
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleError, setScheduleError] = useState('');
+  const [scheduleSuccess, setScheduleSuccess] = useState('');
+
 
   // State for penalty modal
   const [showPenaltyModal, setShowPenaltyModal] = useState(false);
@@ -260,6 +262,7 @@ const Saving: React.FC = () => {
   const handleScheduleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       setScheduleError('');
+      setScheduleSuccess('');
       const amount = Number(scheduleAmount);
       if (amount <= 0 || isNaN(amount) || !scheduleDate) {
           setScheduleError('Uzuza imyanya yose neza.'); return;
@@ -267,12 +270,14 @@ const Saving: React.FC = () => {
       if (new Date(scheduleDate) <= new Date()){
           setScheduleError('Itariki igomba kuba iri imbere.'); return;
       }
-      if (amount > totalSavings) { // Check against total savings
+      if (amount > totalSavings) {
           setScheduleError('Amafaranga yose hamwe ntabwo ahagije.'); return;
       }
       const newSchedule: ScheduledWithdrawal = { id: Math.random(), amount, date: scheduleDate };
-      setScheduledWithdrawals(prev => [...prev, newSchedule]);
+      setScheduledWithdrawals(prev => [...prev, newSchedule].sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+      setScheduleSuccess(`Ubusabe bwo kubikuza ${amount.toLocaleString('fr-FR')} RWF bwemejwe.`);
       setScheduleAmount(''); setScheduleDate('');
+      setTimeout(() => setScheduleSuccess(''), 4000);
   };
 
   const handleWithdrawFromGoal = (goal: SavingsGoal) => {
@@ -412,7 +417,8 @@ const Saving: React.FC = () => {
                             <input type="date" id="schedule-date" value={scheduleDate} onChange={e => setScheduleDate(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-rw-blue focus:border-rw-blue sm:text-sm" min={new Date().toISOString().split("T")[0]}/>
                         </div>
                     </div>
-                    {scheduleError && <p className="text-xs text-red-600"><ExclamationTriangleIcon className="w-4 h-4 inline mr-1"/>{scheduleError}</p>}
+                    {scheduleError && <p className="text-xs text-red-600 flex items-center"><ExclamationTriangleIcon className="w-4 h-4 inline mr-1"/>{scheduleError}</p>}
+                    {scheduleSuccess && <p className="text-xs text-green-700 flex items-center"><CheckCircleIcon className="w-4 h-4 inline mr-1"/>{scheduleSuccess}</p>}
                     <button type="submit" className="w-full bg-rw-blue hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">Emeza Gahunda</button>
                 </form>
                 <div className="mt-6">

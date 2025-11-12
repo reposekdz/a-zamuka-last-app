@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zamuka Microfinance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
             colors: {
               'rw-blue': '#2060A8',
               'rw-yellow': '#F9D700',
@@ -38,7 +44,7 @@
 </script>
 <style>
     body {
-        background-color: #f8fafc; /* Tailwind's bg-slate-50 */
+        background: linear-gradient(to bottom, #f8fafc, #f1f5f9);
     }
     @keyframes fadeInUp {
         from {
@@ -55,7 +61,7 @@
     }
 </style>
 </head>
-  <body class="bg-slate-50">
+  <body class="font-sans">
     <div id="root"></div>
   </body>
 </html>

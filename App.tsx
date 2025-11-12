@@ -45,6 +45,13 @@ const App: React.FC = () => {
     setShowLandingPage(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('rememberUser');
+    setIsAuthenticated(false);
+    setShowLandingPage(true); // Go back to landing page after logout
+    setCurrentPage(Page.Dashboard); // Reset to default page
+  }
+
   if (showLandingPage) {
     return <LandingPage onGetStarted={handleGetStarted} />;
   }
@@ -54,8 +61,8 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 font-sans flex flex-col">
-      <Header />
+    <div className="min-h-screen bg-transparent font-sans flex flex-col">
+      <Header onLogout={handleLogout} />
       <main className="flex-grow p-4 pb-24">
         {renderPage()}
       </main>

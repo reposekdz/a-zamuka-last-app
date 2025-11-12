@@ -272,3 +272,15 @@ export const CheckBadgeIcon: React.FC<IconProps> = ({ className }) => (
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.745 3.745 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
     </svg>
 );
+
+export const Cog6ToothIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-1.008 1.11-1.226a11.98 11.98 0 012.59 0c.55.218 1.02.684 1.11 1.226.09.542-.12 1.11-.468 1.506l-.146.166c-.35.398-.622.86-.728 1.364l-.152.812a11.956 11.956 0 01-2.59 0l-.152-.812c-.106-.504-.378-.966-.728-1.364l-.146-.166c-.348-.396-.558-.964-.468-1.506zM21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 16.5a4.5 4.5 0 100-9 4.5 4.5 0 000 9z" />
+    </svg>
+);
+
+export const ArrowLeftOnRectangleIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+    </svg>
+);

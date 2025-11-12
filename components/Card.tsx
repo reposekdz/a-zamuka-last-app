@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface CardProps {
@@ -8,11 +7,11 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ children, className = '', onClick }) => {
-  const cursorClass = onClick ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : '';
+  const cursorClass = onClick ? 'cursor-pointer hover:shadow-2xl hover:-translate-y-1' : '';
   
   return (
     <div 
-      className={`bg-white rounded-xl shadow-md p-6 transition-all duration-300 ${cursorClass} ${className}`}
+      className={`bg-white rounded-xl shadow-lg p-6 transition-all duration-300 border border-slate-200/50 ${cursorClass} ${className}`}
       onClick={onClick}
     >
       {children}
